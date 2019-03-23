@@ -1,0 +1,152 @@
+<html>
+
+<canvas id="myCanvas" width = "800" height = "600"></canvas>
+<script>
+var canvas;
+var canvasContext;
+var ballX=400;
+var ballY= 300;
+var playerOneScore = 0;
+var playerTwoScore = 0;
+var playerOneX=0;
+var playerOneY=200;
+var playerTwoX=790;
+var playerTwoY=200;
+
+var showFinaScreen = false;
+var ballSpeedX = 5;
+var ballSpeedY = 5;
+
+
+function calculateMousePos(evt){
+	var rect = canvas.getBoundingClientRect();
+	var root = document.documentElement;
+	var mouseX = evt.clientX - rect.left - root.scrollLeft;
+	var mouseY = evt.clientY - rect.top - root.scrollTop;
+	return{
+		x: mouseX,
+		y: mouseY
+	};
+
+}
+function handleMouseClick(evt){
+	if(showFinaScreen==true)
+	{
+		playerOneScore =0;
+		playerTwoScore =0;
+		showFinaScreen = false;
+	}
+
+
+}
+window.onload = function(){
+	canvas = document.getElementById('myCanvas');
+	canvasContext = canvas.getContext('2d');
+	
+	var framesPerSecond = 30;
+	setInterval(function(){
+			moveElement();
+			drawElement();},
+			1000/framesPerSecond);
+	canvas.addEventListener('mousemove',
+			function(evt){
+				var mousePos = calculateMousePos(evt);
+				playerOneY = mousePos.y-50;
+			});
+	canvas.addEventListener('mousedown',handleMouseClick);
+}
+function ballReset(){
+	if(playerTwoScore ==30 || playerOneScore ==30)
+	{
+		showFinaScreen = true;
+	}
+	ballX = canvas.width/2;
+	ballY = canvas.height/2;
+	ballSpeedX = -(ballSpeedX);
+	ballSpeedY = 5;
+}
+function playerTowMovement(){
+	if((playerTwoY + 100) < (ballY-35)){
+		playerTwoY += 5;
+	}
+	else if((playerTwoY + 100) > (ballY+35)){
+		playerTwoY -= 5;
+	}
+}
+function moveElement(){
+	
+	ballX += ballSpeedX;
+	ballY += ballSpeedY;
+	if(ballX < 0)
+	{
+		if(ballY >= playerOneY && ballY <= (playerOneY+100))
+		{
+			ballSpeedX = -(ballSpeedX);
+			var deltaY = ballY - (playerOneY+50);
+			ballSpeedY = deltaY * 0.30;
+		}else{
+			playerTwoScore +=10;
+			ballReset();
+			
+		}
+	}
+	if(ballX > 790)
+	{
+		if(ballY >= playerTwoY && ballY <= (playerTwoY+100))
+		{
+			ballSpeedX = -(ballSpeedX);
+			var deltaY = ballY - (playerTwoY+50);
+			ballSpeedY = deltaY * 0.3;
+		}else{
+			playerOneScore += 10;
+			ballReset();
+			
+		}
+	}
+	if (ballY < 0 || ballY > 600)
+		ballSpeedY = -ballSpeedY;
+	playerTowMovement();
+}
+function drawElement(){
+	colorRect(0,0,canvas.width, canvas.height,'black');
+	if(showFinaScreen == true){
+		canvasContext.fillStyle = 'white';
+		canvasContext.fillText("Game Over",350,280);
+		if(playerTwoScore ==30)
+		{
+			showFinaScreen = true;
+			canvasContext.fillText("Computer Wins!!!",350,290);
+		}
+		else if(playerOneScore ==30)
+		{
+			canvasContext.fillText("You Win!!!",350,290);
+		}
+		canvasContext.fillText("Click to play again!!!",350,550);
+		return;
+	}
+	
+	for (var i=0; i<canvas.height; i+=40)
+	{
+		colorRect(canvas.width/2-1, i,2,20,'white');
+	}
+	colorRect(playerOneX,playerOneY,10, 100,'gray');
+	colorRect(playerTwoX,playerTwoY,10, 100,'gray');
+	drawCircle(ballX,ballY,10,'red');
+	
+	canvasContext.fillText(playerTwoScore,700,100);
+	canvasContext.fillText(playerOneScore,200,100);
+}
+function drawCircle(X,Y,radius,color){
+	canvasContext.fillStyle = color;
+	canvasContext.beginPath();
+	canvasContext.arc(X,Y,radius,0,Math.PI*2 , true);
+	canvasContext.fill();
+}
+function colorRect(X,Y, width, height, color){
+	canvasContext.fillStyle = color;
+	canvasContext.fillRect(X,Y,width,height);
+}
+</script>
+
+
+</html>
